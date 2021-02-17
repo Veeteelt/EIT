@@ -33,24 +33,22 @@ void PI_SetKp(float value){
 void PI_SetKi(float value){
     ki = value;
 }
-float I = 0;
 void PI(void) {
+    
     sensorHeight = (int) ADC_GetResult(); //resultaat van ADC
     error = setpoint - sensorHeight;
-    
-    
     float P = kp * error;
-    I = I + ki * error;
+    integral += ki * error;
+    int dutycycle = (int)(P + integral);
     
-    
-    int dutycycle1 = (int)(P + I);
-    if (dutycycle1 < 255 && dutycycle1 > 0){
-        dutycycle = dutycycle1;
+    if (dutycycle > 255) {
+        dutycycle = 255;
     }
-    
-   
-    PWM5_LoadDutyValue(dutycycle);
-    
+    if (dutycycle < 0) {
+        dutycycle = 0;
+    }
+
+    PWM5_LoadDutyValue(dutycycle); // output pwm signaal voor hoogte
 }
 
 /**
